@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+
+<!-- Load your scripts as regular JS (no modules) -->
+<script src="js/web3.actions.js"></script>
+<script src="js/app.js"></script>
+</head>
+<body>
+  <div class="wallet-section">
+    <button id="connectWallet">Connect Wallet</button>
+    <span id="walletAddress"></span>
+  </div>
+  
+  <div class="balance-section">
+    <h2>Your Loyalty Points</h2>
+    <span id="pointsBalance">0</span>
+  </div>
+  
+  <div class="actions">
+    <button id="earnPoints">Earn 10 Points</button>
+  </div>
+
+  <script src="js/web3.actions.js" type="module"></script>
+  <script type="module" src="js/app.js"></script> <!-- You'll create this next -->
+  <div id="wallet-error" style="display:none; color:red; padding:1rem;">
+    <p>MetaMask not detected! Please install it from 
+    <a href="https://metamask.io/" target="_blank">metamask.io</a></p>
+</div>
+</body>
+</html>
