@@ -1,4 +1,3 @@
-// LoyaltyToken.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -9,16 +8,35 @@ contract LoyaltyToken {
     uint public totalSupply;
 
     mapping(address => uint) public balanceOf;
-    mapping(address => mapping(address => uint)) public allowance;
+    mapping(address => bool) public minters; // New: authorized minters
 
     address public admin;
 
     constructor() {
         admin = msg.sender;
+        minters[msg.sender] = true; // Admin is a minter by default
     }
 
-    function mint(address to, uint amount) public {
-        require(msg.sender == admin, "Only admin can mint");
+    // Add this modifier
+    modifier onlyMinter() {
+        require(minters[msg.sender], "Only minters can call this");
+        _;
+    }
+
+    // Add this function
+    function earnPoints(address recipient, uint amount) public onlyMinter {
+        balanceOf[recipient] += amount;
+        totalSupply += amount;
+    }
+
+    // Add this function to manage minters
+    function setMinter(address account, bool isMinter) public {
+        require(msg.sender == admin, "Only admin");
+        minters[account] = isMinter;
+    }
+
+    // Keep existing functions...
+    function mint(address to, uint amount) public onlyMinter {
         balanceOf[to] += amount;
         totalSupply += amount;
     }

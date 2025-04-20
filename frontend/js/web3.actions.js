@@ -19,12 +19,12 @@ async function initWeb3() {
 
 // Initialize contract with your ABI
 async function initContract() {
-  const contractABI = [
+  const contractABI =[
 	{
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "to",
+				"name": "recipient",
 				"type": "address"
 			},
 			{
@@ -33,7 +33,25 @@ async function initContract() {
 				"type": "uint256"
 			}
 		],
-		"name": "mint",
+		"name": "earnPoints",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "isMinter",
+				"type": "bool"
+			}
+		],
+		"name": "setMinter",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -113,6 +131,25 @@ async function initContract() {
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "minters",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "name",
 		"outputs": [
@@ -152,7 +189,7 @@ async function initContract() {
 		"type": "function"
 	}
 ];
-  const contractAddress = '0x72b324d2e87c62ec95a1215394f446f4c3ca1bdb';
+  const contractAddress = '0x203a9760709b8781a380f60035bbf3b57d3a36a7';
   contract = new web3.eth.Contract(contractABI, contractAddress);
   return true;
 }

@@ -15,7 +15,7 @@ with open('./abi/LoyaltyTokenABI.json') as f:
     abi = json.load(f)
 
 # Contract address (must be checksummed for local testnet)
-contract_address = Web3.to_checksum_address('0x72b324d2e87c62ec95a1215394f446f4c3ca1bdb')
+contract_address = Web3.to_checksum_address('0x203a9760709b8781a380f60035bbf3b57d3a36a7')
 contract = web3.eth.contract(address=contract_address, abi=abi)
 
 # Set default account (use one of your Ganache accounts)
