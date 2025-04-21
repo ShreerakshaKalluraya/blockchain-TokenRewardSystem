@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockRewards - Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .admin-section {
+            grid-column: 1;
+        }
+        .approval-section {
+            grid-column: 2;
+        }
+        h1, h2, h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .btn {
+            background: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .btn:hover {
+            background: #5a0db6;
+        }
+        .btn-green {
+            background: #4caf50;
+        }
+        .btn-green:hover {
+            background: #3d8b40;
+        }
+        .btn-red {
+            background: #f44336;
+        }
+        .btn-red:hover {
+            background: #d32f2f;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .logout-btn {
+            background: #f44336;
+        }
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            flex: 1;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 0 10px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a11cb;
+            margin: 10px 0;
+        }
+        .tab-headers {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-header {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-header.active {
+            border-bottom: 3px solid #6a11cb;
+            color: #6a11cb;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .business-approval-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BlockRewards Admin</h1>
+            <div>
+                <span id="admin-email">admin@example.com</span>
+                <button class="btn logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <h3>Total Users</h3>
+                <div class="stat-number" id="total-users">153</div>
+                <p>Registered users</p>
+            </div>
+            <div class="stat-item">
+                <h3>Active Businesses</h3>
+                <div class="stat-number" id="active-businesses">27</div>
+                <p>Approved merchants</p>
+            </div>
+            <div class="stat-item">
+                <h3>Total Vouchers</h3>
+                <div class="stat-number" id="total-vouchers">95</div>
+                <p>Available rewards</p>
+            </div>
+            <div class="stat-item">
+                <h3>Total Redemptions</h3>
+                <div class="stat-number" id="total-redemptions">412</div>
+                <p>Claimed rewards</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <div class="admin-section">
+                <div class="card">
+                    <h2>System Controls</h2>
+                    <div class="form-group">
+                        <label for="point-rate">Points per Minute Rate:</label>
+                        <input type="number" id="point-rate" value="2" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="system-wallet">System Wallet Address:</label>
+                        <input type="text" id="system-wallet" value="0xABCD...1234" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="system-balance">Contract Balance:</label>
+                        <input type="text" id="system-balance" value="5.75 ETH" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="fund-amount">Fund Contract Amount (ETH):</label>
+                        <input type="number" id="fund-amount" value="1" min="0.1" step="0.1">
+                    </div>
+                    <button class="btn btn-green" id="fund-contract-btn">Fund Contract</button>
+                    <button class="btn" id="update-settings-btn">Update Settings</button>
+                </div>
+                
+                <div class="card">
+                    <h2>Pending Approvals</h2>
+                    <div id="pending-count">
+                        <p>5 businesses pending approval</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="approval-section">
+                <div class="card">
+                    <div class="tab-headers">
+                        <div class="tab-header active" data-tab="business-approvals">Business Approvals</div>
+                        <div class="tab-header" data-tab="all-users">User Management</div>
+                        <div class="tab-header" data-tab="transactions">Transaction History</div>
+                    </div>
+                    
+                    <!-- Business Approvals Tab -->
+                    <div class="tab-content active" id="business-approvals">
+                        <h2>Pending Business Approvals</h2>
+                        <div id="approval-list">
+                            <!-- Businesses pending approval will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- All Users Tab -->
+                    <div class="tab-content" id="all-users">
+                        <h2>User Management</h2>
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Transactions Tab -->
+                    <div class="tab-content" id="transactions">
+                        <h2>Transaction History</h2>
+                        <table id="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Transactions will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id || user.role !== 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display admin info
+            document.getElementById('admin-email').textContent = user.email;
+            
+            // Tab switching logic
+            const tabs = document.querySelectorAll('.tab-header');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and content sections
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    this.classList.add('active');
+                    const contentId = this.getAttribute('data-tab');
+                    document.getElementById(contentId).classList.add('active');
+                });
+            });
+            
+            // Load pending business approvals (mock data)
+            const pendingBusinesses = [
+                {
+                    id: 1,
+                    name: 'Pizza Palace',
+                    email: 'pizza@example.com',
+                    description: 'We offer the best pizza in town with a variety of toppings.',
+                    walletAddress: '0x1234567890abcdef1234567890abcdef12345678',
+                    date: '2025-04-18'
+                },
+                {
+                    id: 2,
+                    name: 'Book Haven',
+                    email: 'books@example.com',
+                    description: 'A cozy bookstore with a wide selection of books across all genres.',
+                    walletAddress: '0xabcdef1234567890abcdef1234567890abcdef12',
+                    date: '2025-04-19'
+                },
+                {
+                    id: 3,
+                    name: 'Fitness First',
+                    email: 'fitness@example.com',
+                    description: 'State-of-the-art gym equipment and professional trainers.',
+                    walletAddress: '0x7890abcdef1234567890abcdef1234567890abcd',
+                    date: '2025-04-20'
+                },
+                {
+                    id: 4,
+                    name: 'Tech Galaxy',
+                    email: 'tech@example.com',
+                    description: 'Latest tech gadgets and electronics at competitive prices.',
+                    walletAddress: '0xdef1234567890abcdef1234567890abcdef123456',
+                    date: '2025-04-20'
+                },
+                {
+                    id: 5,
+                    name: 'Green Grocers',
+                    email: 'greens@example.com',
+                    description: 'Fresh organic produce directly from local farmers.',
+                    walletAddress: '0x567890abcdef1234567890abcdef1234567890ab',
+                    date: '2025-04-21'
+                }
+            ];
+            
+            // Display pending approvals
+            const approvalListElement = document.getElementById('approval-list');
+            approvalListElement.innerHTML = '';
+            
+            pendingBusinesses.forEach(business => {
+                const approvalElement = document.createElement('div');
+                approvalElement.className = 'business-approval-item';
+                approvalElement.innerHTML = `
+                    <h3>${business.name}</h3>
+                    <p><strong>Email:</strong> ${business.email}</p>
+                    <p><strong>Description:</strong> ${business.description}</p>
+                    <p><strong>Wallet Address:</strong> ${business.walletAddress.substring(0, 6)}...${business.walletAddress.substring(38)}</p>
+                    <p><strong>Registration Date:</strong> ${business.date}</p>
+                    <div>
+                        <button class="btn btn-green approve-btn" data-id="${business.id}">Approve</button>
+                        <button class="btn btn-red reject-btn" data-id="${business.id}">Reject</button>
+                    </div>
+                `;
+                approvalListElement.appendChild(approvalElement);
+            });
+            
+            // Add event listeners to approval/rejection buttons
+            document.querySelectorAll('.approve-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const businessId = this.getAttribute('data-id');
+                    approveBusiness(businessId);
+                });
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const businessId = this.getAttribute('data-id');
+                    rejectBusiness(businessId);
+                });
+            });
+            
+            // Mock user data for the users table
+            const users = [
+                { id: 1, name: 'John Doe', email: 'john@example.com', role: 'customer', status: 'active' },
+                { id: 2, name: 'Coffee Shop', email: 'coffee@example.com', role: 'business', status: 'active' },
+                { id: 3, name: 'Jane Smith', email: 'jane@example.com', role: 'customer', status: 'active' },
+                { id: 4, name: 'Book Store', email: 'books@example.com', role: 'business', status: 'pending' },
+                { id: 5, name: 'Admin User', email: 'admin@example.com', role: 'admin', status: 'active' },
+                { id: 6, name: 'Alice Johnson', email: 'alice@example.com', role: 'customer', status: 'active' },
+                { id: 7, name: 'Tech Shop', email: 'tech@example.com', role: 'business', status: 'pending' }
+            ];
+            
+            // Populate users table
+            const usersTableBody = document.querySelector('#users-table tbody');
+            usersTableBody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role}</td>
+                    <td>${user.status}</td>
+                    <td>
+                        ${user.status === 'active' 
+                            ? '<button class="btn btn-red suspend-btn" data-id="' + user.id + '">Suspend</button>' 
+                            : '<button class="btn btn-green activate-btn" data-id="' + user.id + '">Activate</button>'}
+                    </td>
+                `;
+                usersTableBody.appendChild(row);
+            });
+            
+            // Mock transaction data
+            const transactions = [
+                { id: 'TX001', type: 'Redemption', from: 'John Doe', to: 'Coffee Shop', amount: '200 points', date: '2025-04-21 14:32', status: 'Completed' },
+                { id: 'TX002', type: 'Funding', from: 'System', to: 'Contract', amount: '2 ETH', date: '2025-04-20 10:15', status: 'Completed' },
+                { id: 'TX003', type: 'Withdrawal', from: 'Contract', to: 'Coffee Shop', amount: '0.5 ETH', date: '2025-04-19 16:45', status: 'Completed' },
+                { id: 'TX004', type: 'Redemption', from: 'Jane Smith', to: 'Book Store', amount: '150 points', date: '2025-04-18 09:22', status: 'Completed' },
+                { id: 'TX005', type: 'Points Earned', from: 'System', to: 'Alice Johnson', amount: '20 points', date: '2025-04-17 17:30', status: 'Completed' }
+            ];
+            
+            // Populate transactions table
+            const transactionsTableBody = document.querySelector('#transactions-table tbody');
+            transactionsTableBody.innerHTML = '';
+            
+            transactions.forEach(tx => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${tx.id}</td>
+                    <td>${tx.type}</td>
+                    <td>${tx.from}</td>
+                    <td>${tx.to}</td>
+                    <td>${tx.amount}</td>
+                    <td>${tx.date}</td>
+                    <td>${tx.status}</td>
+                `;
+                transactionsTableBody.appendChild(row);
+            });
+            
+            // Fund contract button
+            document.getElementById('fund-contract-btn').addEventListener('click', function() {
+                const amount = document.getElementById('fund-amount').value;
+                
+                // In a real app, this would trigger a blockchain transaction
+                alert(`Funding contract with ${amount} ETH. Please confirm in MetaMask.`);
+                
+                // Simulate successful funding
+                setTimeout(() => {
+                    const currentBalance = parseFloat(document.getElementById('system-balance').value);
+                    document.getElementById('system-balance').value = `${(currentBalance + parseFloat(amount)).toFixed(2)} ETH`;
+                    alert('Contract funded successfully!');
+                }, 2000);
+            });
+            
+            // Update settings button
+            document.getElementById('update-settings-btn').addEventListener('click', function() {
+                const pointRate = document.getElementById('point-rate').value;
+                
+                // In a real app, this would be an API call to update settings
+                alert(`Point rate updated to ${pointRate} points per minute.`);
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            });
+            
+            // Function to approve a business
+            function approveBusiness(businessId) {
+                // In a real app, this would be an API call
+                
+                // Find the business in our mock data
+                const business = pendingBusinesses.find(b => b.id == businessId);
+                if (!business) return;
+                
+                // Mock successful approval
+                alert(`Business "${business.name}" approved successfully!`);
+                
+                // Remove the business item from the approval list
+                const approvalItem = document.querySelector(`.approve-btn[data-id="${businessId}"]`).closest('.business-approval-item');
+                approvalItem.remove();
+                
+                // Update pending count
+                const pendingCount = document.querySelectorAll('.business-approval-item').length;
+                document.getElementById('pending-count').innerHTML = `<p>${pendingCount} businesses pending approval</p>`;
+                
+                // Update active businesses count
+                const activeBusinesses = parseInt(document.getElementById('active-businesses').textContent);
+                document.getElementById('active-businesses').textContent = activeBusinesses + 1;
+            }
+            
+            // Function to reject a business
+            function rejectBusiness(businessId) {
+                // In a real app, this would be an API call
+                
+                // Find the business in our mock data
+                const business = pendingBusinesses.find(b => b.id == businessId);
+                if (!business) return;
+                
+                // Mock successful rejection
+                alert(`Business "${business.name}" rejected.`);
+                
+                // Remove the business item from the approval list
+                const approvalItem = document.querySelector(`.reject-btn[data-id="${businessId}"]`).closest('.business-approval-item');
+                approvalItem.remove();
+                
+                // Update pending count
+                const pendingCount = document.querySelectorAll('.business-approval-item').length;
+                document.getElementById('pending-count').innerHTML = `<p>${pendingCount} businesses pending approval</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

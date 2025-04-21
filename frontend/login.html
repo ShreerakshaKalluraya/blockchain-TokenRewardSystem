@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockRewards - Login/Signup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            background: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background: #6a11cb;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .btn {
+            background: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #5a0db6;
+        }
+        .form-container {
+            display: none;
+        }
+        .form-container.active {
+            display: block;
+        }
+        .wallet-info {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>BlockRewards</h1>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="login">Login</div>
+            <div class="tab" data-tab="customer">Customer Signup</div>
+            <div class="tab" data-tab="business">Business Signup</div>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="form-container active" id="login-form">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <div class="buttons">
+                <button class="btn" id="login-btn">Login</button>
+            </div>
+            <div id="login-message"></div>
+        </div>
+        
+        <!-- Customer Signup Form -->
+        <div class="form-container" id="customer-form">
+            <h2>Customer Registration</h2>
+            <div class="form-group">
+                <label for="customer-name">Full Name:</label>
+                <input type="text" id="customer-name" required>
+            </div>
+            <div class="form-group">
+                <label for="customer-email">Email:</label>
+                <input type="email" id="customer-email" required>
+            </div>
+            <div class="form-group">
+                <label for="customer-password">Password:</label>
+                <input type="password" id="customer-password" required>
+            </div>
+            <div class="form-group">
+                <label for="customer-wallet">MetaMask Wallet Address:</label>
+                <input type="text" id="customer-wallet" readonly>
+                <button class="btn" id="connect-wallet-customer" style="margin-top: 10px;">Connect MetaMask</button>
+            </div>
+            <div class="buttons">
+                <button class="btn" id="register-customer-btn">Register</button>
+            </div>
+            <div id="customer-message"></div>
+        </div>
+        
+        <!-- Business Signup Form -->
+        <div class="form-container" id="business-form">
+            <h2>Business Registration</h2>
+            <div class="form-group">
+                <label for="business-name">Business Name:</label>
+                <input type="text" id="business-name" required>
+            </div>
+            <div class="form-group">
+                <label for="business-email">Business Email:</label>
+                <input type="email" id="business-email" required>
+            </div>
+            <div class="form-group">
+                <label for="business-password">Password:</label>
+                <input type="password" id="business-password" required>
+            </div>
+            <div class="form-group">
+                <label for="business-description">Business Description:</label>
+                <input type="text" id="business-description" required>
+            </div>
+            <div class="form-group">
+                <label for="business-wallet">MetaMask Wallet Address:</label>
+                <input type="text" id="business-wallet" readonly>
+                <button class="btn" id="connect-wallet-business" style="margin-top: 10px;">Connect MetaMask</button>
+            </div>
+            <div class="buttons">
+                <button class="btn" id="register-business-btn">Register</button>
+            </div>
+            <div id="business-message"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching logic
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and forms
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.form-container').forEach(form => form.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding form
+                    this.classList.add('active');
+                    const formId = this.getAttribute('data-tab') + '-form';
+                    document.getElementById(formId).classList.add('active');
+                });
+            });
+
+            // MetaMask connection for customers
+            document.getElementById('connect-wallet-customer').addEventListener('click', async function() {
+                await connectWallet('customer-wallet', 'customer-message');
+            });
+
+            // MetaMask connection for businesses
+            document.getElementById('connect-wallet-business').addEventListener('click', async function() {
+                await connectWallet('business-wallet', 'business-message');
+            });
+
+            // Login form submission
+            document.getElementById('login-btn').addEventListener('click', async function() {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const messageEl = document.getElementById('login-message');
+                
+                if (!email || !password) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'Please enter both email and password';
+                    return;
+                }
+
+                try {
+                    // In a real app, this would be an API call
+                    const response = await mockLoginAPI(email, password);
+                    
+                    if (response.success) {
+                        messageEl.className = 'success';
+                        messageEl.textContent = 'Login successful! Redirecting...';
+                        
+                        // Store user info in localStorage (in a real app, you'd use secure session management)
+                        localStorage.setItem('user', JSON.stringify({
+                            id: response.userId,
+                            email: email,
+                            role: response.role
+                        }));
+                        
+                        // Redirect based on role
+                        setTimeout(() => {
+                            switch(response.role) {
+                                case 'customer':
+                                    window.location.href = 'customer-dashboard.html';
+                                    break;
+                                case 'business':
+                                    window.location.href = 'business-dashboard.html';
+                                    break;
+                                case 'admin':
+                                    window.location.href = 'admin-dashboard.html';
+                                    break;
+                            }
+                        }, 1500);
+                    } else {
+                        messageEl.className = 'error';
+                        messageEl.textContent = response.message || 'Login failed';
+                    }
+                } catch (error) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'An error occurred. Please try again.';
+                    console.error(error);
+                }
+            });
+
+            // Customer registration
+            document.getElementById('register-customer-btn').addEventListener('click', async function() {
+                const name = document.getElementById('customer-name').value;
+                const email = document.getElementById('customer-email').value;
+                const password = document.getElementById('customer-password').value;
+                const walletAddress = document.getElementById('customer-wallet').value;
+                const messageEl = document.getElementById('customer-message');
+                
+                if (!name || !email || !password || !walletAddress) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'Please fill all fields and connect your wallet';
+                    return;
+                }
+
+                try {
+                    // In a real app, this would be an API call
+                    const response = await mockRegisterAPI({
+                        name,
+                        email,
+                        password,
+                        walletAddress,
+                        role: 'customer'
+                    });
+                    
+                    if (response.success) {
+                        messageEl.className = 'success';
+                        messageEl.textContent = 'Registration successful! You can now login.';
+                        
+                        // Clear form
+                        document.getElementById('customer-name').value = '';
+                        document.getElementById('customer-email').value = '';
+                        document.getElementById('customer-password').value = '';
+                        document.getElementById('customer-wallet').value = '';
+                        
+                        // Switch to login tab after 2 seconds
+                        setTimeout(() => {
+                            document.querySelector('.tab[data-tab="login"]').click();
+                        }, 2000);
+                    } else {
+                        messageEl.className = 'error';
+                        messageEl.textContent = response.message || 'Registration failed';
+                    }
+                } catch (error) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'An error occurred. Please try again.';
+                    console.error(error);
+                }
+            });
+
+            // Business registration
+            document.getElementById('register-business-btn').addEventListener('click', async function() {
+                const name = document.getElementById('business-name').value;
+                const email = document.getElementById('business-email').value;
+                const password = document.getElementById('business-password').value;
+                const description = document.getElementById('business-description').value;
+                const walletAddress = document.getElementById('business-wallet').value;
+                const messageEl = document.getElementById('business-message');
+                
+                if (!name || !email || !password || !description || !walletAddress) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'Please fill all fields and connect your wallet';
+                    return;
+                }
+
+                try {
+                    // In a real app, this would be an API call
+                    const response = await mockRegisterAPI({
+                        name,
+                        email,
+                        password,
+                        description,
+                        walletAddress,
+                        role: 'business'
+                    });
+                    
+                    if (response.success) {
+                        messageEl.className = 'success';
+                        messageEl.textContent = 'Business registration submitted! Admin approval pending.';
+                        
+                        // Clear form
+                        document.getElementById('business-name').value = '';
+                        document.getElementById('business-email').value = '';
+                        document.getElementById('business-password').value = '';
+                        document.getElementById('business-description').value = '';
+                        document.getElementById('business-wallet').value = '';
+                        
+                        // Switch to login tab after 2 seconds
+                        setTimeout(() => {
+                            document.querySelector('.tab[data-tab="login"]').click();
+                        }, 2000);
+                    } else {
+                        messageEl.className = 'error';
+                        messageEl.textContent = response.message || 'Registration failed';
+                    }
+                } catch (error) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'An error occurred. Please try again.';
+                    console.error(error);
+                }
+            });
+
+            // MetaMask connection function
+            async function connectWallet(walletInputId, messageElementId) {
+                const walletInput = document.getElementById(walletInputId);
+                const messageEl = document.getElementById(messageElementId);
+                
+                // Check if MetaMask is installed
+                if (typeof window.ethereum === 'undefined') {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'MetaMask is not installed. Please install MetaMask to continue.';
+                    return;
+                }
+                
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    walletInput.value = accounts[0];
+                    messageEl.className = 'success';
+                    messageEl.textContent = 'Wallet connected successfully!';
+                } catch (error) {
+                    messageEl.className = 'error';
+                    messageEl.textContent = 'Failed to connect wallet: ' + error.message;
+                    console.error(error);
+                }
+            }
+
+            // Mock API functions (replace with real API calls in production)
+            async function mockLoginAPI(email, password) {
+                // In a real app, this would be a fetch call to your backend
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        // Simulate response from backend
+                        if (email === 'customer@example.com' && password === 'password') {
+                            resolve({
+                                success: true,
+                                userId: '1',
+                                role: 'customer'
+                            });
+                        } else if (email === 'business@example.com' && password === 'password') {
+                            resolve({
+                                success: true,
+                                userId: '2',
+                                role: 'business'
+                            });
+                        } else if (email === 'admin@example.com' && password === 'password') {
+                            resolve({
+                                success: true,
+                                userId: '3',
+                                role: 'admin'
+                            });
+                        } else {
+                            resolve({
+                                success: false,
+                                message: 'Invalid email or password'
+                            });
+                        }
+                    }, 1000);
+                });
+            }
+
+            async function mockRegisterAPI(userData) {
+                // In a real app, this would be a fetch call to your backend
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        // Simulate response from backend
+                        if (userData.email.includes('@example.com')) {
+                            resolve({
+                                success: true,
+                                userId: Math.floor(Math.random() * 1000).toString(),
+                                message: userData.role === 'business' 
+                                    ? 'Business registration pending approval' 
+                                    : 'Registration successful'
+                            });
+                        } else {
+                            resolve({
+                                success: false,
+                                message: 'Registration failed. Try a different email.'
+                            });
+                        }
+                    }, 1000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

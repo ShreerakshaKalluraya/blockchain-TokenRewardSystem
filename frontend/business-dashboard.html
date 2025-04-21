@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockRewards - Business Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .profile-section {
+            grid-column: 1;
+        }
+        .vouchers-section {
+            grid-column: 2;
+        }
+        h1, h2, h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .btn {
+            background: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #5a0db6;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .logout-btn {
+            background: #f44336;
+        }
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #ffc107;
+            color: #333;
+        }
+        .status-approved {
+            background: #4caf50;
+            color: white;
+        }
+        .status-rejected {
+            background: #f44336;
+            color: white;
+        }
+        .voucher-list {
+            margin-top: 20px;
+        }
+        .voucher-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        .redemption-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        .earnings {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BlockRewards</h1>
+            <div>
+                <span id="business-email">business@example.com</span>
+                <button class="btn logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            <div class="profile-section">
+                <div class="card">
+                    <h2>Business Profile</h2>
+                    <div id="business-info">
+                        <p><strong>Business Name:</strong> <span id="business-name">Coffee Shop</span></p>
+                        <p><strong>Email:</strong> <span id="profile-email">business@example.com</span></p>
+                        <p><strong>Wallet Address:</strong> <span id="wallet-address">0x9876...5432</span></p>
+                        <p><strong>Status:</strong> <span class="status status-approved" id="approval-status">Approved</span></p>
+                        <p><strong>Description:</strong> <span id="business-description">A cozy coffee shop offering premium coffee and snacks.</span></p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Your Earnings</h2>
+                    <div class="earnings" id="earnings-display">0.25 ETH</div>
+                    <button class="btn" id="withdraw-btn">Withdraw to Wallet</button>
+                </div>
+            </div>
+            
+            <div class="vouchers-section">
+                <div class="card">
+                    <h2>Create New Voucher</h2>
+                    <form id="voucher-form">
+                        <div class="form-group">
+                            <label for="voucher-title">Voucher Title:</label>
+                            <input type="text" id="voucher-title" placeholder="e.g. 50% Off Coffee" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="voucher-description">Description:</label>
+                            <textarea id="voucher-description" rows="3" placeholder="Describe your offer" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="voucher-points">Points Required:</label>
+                            <input type="number" id="voucher-points" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="voucher-quantity">Available Quantity:</label>
+                            <input type="number" id="voucher-quantity" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="voucher-expiry">Expiry Date:</label>
+                            <input type="date" id="voucher-expiry" required>
+                        </div>
+                        <button type="submit" class="btn">Create Voucher</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h2>Your Vouchers</h2>
+                    <div class="voucher-list" id="voucher-list">
+                        <!-- Vouchers will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Recent Redemptions</h2>
+                    <div id="redemption-history">
+                        <!-- Redemption history will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id || user.role !== 'business') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display business info
+            document.getElementById('business-email').textContent = user.email;
+            document.getElementById('profile-email').textContent = user.email;
+            
+            // Mock business data (in a real app, this would come from the backend)
+            const mockBusinessData = {
+                name: 'Coffee Shop',
+                description: 'A cozy coffee shop offering premium coffee and snacks.',
+                walletAddress: '0x9876543210abcdef9876543210abcdef98765432',
+                status: 'approved', // pending, approved, rejected
+                earnings: 0.25 // in ETH
+            };
+            
+            document.getElementById('business-name').textContent = mockBusinessData.name;
+            document.getElementById('business-description').textContent = mockBusinessData.description;
+            document.getElementById('wallet-address').textContent = 
+                `${mockBusinessData.walletAddress.substring(0, 6)}...${mockBusinessData.walletAddress.substring(38)}`;
+            
+            // Set status
+            const statusElement = document.getElementById('approval-status');
+            statusElement.textContent = mockBusinessData.status.charAt(0).toUpperCase() + mockBusinessData.status.slice(1);
+            statusElement.className = `status status-${mockBusinessData.status}`;
+            
+            // Set earnings
+            document.getElementById('earnings-display').textContent = `${mockBusinessData.earnings} ETH`;
+            
+            // Mock vouchers
+            const vouchers = [
+                { 
+                    id: 1, 
+                    title: '50% Off Coffee', 
+                    description: 'Get 50% off on any coffee drink',
+                    points: 200,
+                    quantity: 50,
+                    available: 45,
+                    expiry: '2025-12-31',
+                    active: true
+                },
+                { 
+                    id: 2, 
+                    title: 'Free Pastry', 
+                    description: 'Get a free pastry with any drink purchase',
+                    points: 150,
+                    quantity: 30,
+                    available: 28,
+                    expiry: '2025-06-30',
+                    active: true
+                }
+            ];
+            
+            // Display vouchers
+            const voucherListElement = document.getElementById('voucher-list');
+            voucherListElement.innerHTML = '';
+            
+            if (vouchers.length === 0) {
+                voucherListElement.innerHTML = '<p>No vouchers created yet.</p>';
+            } else {
+                vouchers.forEach(voucher => {
+                    const voucherElement = document.createElement('div');
+                    voucherElement.className = 'voucher-item';
+                    voucherElement.innerHTML = `
+                        <h3>${voucher.title}</h3>
+                        <p>${voucher.description}</p>
+                        <p><strong>Points:</strong> ${voucher.points}</p>
+                        <p><strong>Available:</strong> ${voucher.available} / ${voucher.quantity}</p>
+                        <p><strong>Expires:</strong> ${voucher.expiry}</p>
+                        <div>
+                            <button class="btn ${voucher.active ? '' : 'btn-secondary'}" data-id="${voucher.id}">
+                                ${voucher.active ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button class="btn" data-id="${voucher.id}">Edit</button>
+                        </div>
+                    `;
+                    voucherListElement.appendChild(voucherElement);
+                });
+            }
+            
+            // Mock redemption history
+            const redemptions = [
+                { id: 1, customer: '0xabcd...1234', voucher: '50% Off Coffee', date: '2025-04-20 14:32' },
+                { id: 2, customer: '0x7890...5678', voucher: 'Free Pastry', date: '2025-04-19 10:15' },
+                { id: 3, customer: '0xdef0...9876', voucher: '50% Off Coffee', date: '2025-04-18 16:45' }
+            ];
+            
+            // Display redemption history
+            const historyElement = document.getElementById('redemption-history');
+            historyElement.innerHTML = '';
+            
+            if (redemptions.length === 0) {
+                historyElement.innerHTML = '<p>No redemptions yet.</p>';
+            } else {
+                redemptions.forEach(redemption => {
+                    const redemptionElement = document.createElement('div');
+                    redemptionElement.className = 'redemption-item';
+                    redemptionElement.innerHTML = `
+                        <p><strong>${redemption.voucher}</strong> redeemed by ${redemption.customer}</p>
+                        <p>${redemption.date}</p>
+                    `;
+                    historyElement.appendChild(redemptionElement);
+                });
+            }
+            
+            // Form submission for new voucher
+            document.getElementById('voucher-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('voucher-title').value;
+                const description = document.getElementById('voucher-description').value;
+                const points = document.getElementById('voucher-points').value;
+                const quantity = document.getElementById('voucher-quantity').value;
+                const expiry = document.getElementById('voucher-expiry').value;
+                
+                // In a real app, this would be an API call to the backend
+                
+                // Mock successful creation
+                alert(`Voucher "${title}" created successfully!`);
+                
+                // Reset form
+                this.reset();
+                
+                // In a real app, we would reload the vouchers list here
+            });
+            
+            // Withdraw earnings
+            document.getElementById('withdraw-btn').addEventListener('click', function() {
+                // In a real app, this would trigger a blockchain transaction
+                alert('Withdrawal of 0.25 ETH initiated to your wallet. Check your wallet for confirmation.');
+                document.getElementById('earnings-display').textContent = '0.00 ETH';
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

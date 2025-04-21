@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockRewards - Customer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .profile-section {
+            grid-column: 1;
+        }
+        .rewards-section {
+            grid-column: 2;
+        }
+        h1, h2, h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .points-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a11cb;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #5a0db6;
+        }
+        .voucher-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        .voucher-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .logout-btn {
+            background: #f44336;
+        }
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+        .timer {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BlockRewards</h1>
+            <div>
+                <span id="user-email">customer@example.com</span>
+                <button class="btn logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            <div class="profile-section">
+                <div class="card">
+                    <h2>Your Profile</h2>
+                    <div id="user-info">
+                        <p><strong>Name:</strong> <span id="user-name">John Doe</span></p>
+                        <p><strong>Email:</strong> <span id="profile-email">customer@example.com</span></p>
+                        <p><strong>Wallet Address:</strong> <span id="wallet-address">0x1234...5678</span></p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Your Points</h2>
+                    <div class="points-display" id="points-display">500 Points</div>
+                    <div class="timer">
+                        <p>Time on site: <span id="time-counter">00:00</span></p>
+                        <p>Points earned this session: <span id="session-points">0</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rewards-section">
+                <div class="card">
+                    <h2>Available Vouchers</h2>
+                    <div class="voucher-list" id="voucher-list">
+                        <!-- Vouchers will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Redemption History</h2>
+                    <div id="redemption-history">
+                        <!-- Redemption history will be loaded here -->
+                        <p>No redemptions yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id || user.role !== 'customer') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Display user info
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('profile-email').textContent = user.email;
+            
+            // Mock user data (in a real app, this would come from the backend)
+            const mockUserData = {
+                name: 'John Doe',
+                points: 500,
+                walletAddress: '0x1234567890abcdef1234567890abcdef12345678'
+            };
+            
+            document.getElementById('user-name').textContent = mockUserData.name;
+            document.getElementById('points-display').textContent = `${mockUserData.points} Points`;
+            document.getElementById('wallet-address').textContent = 
+                `${mockUserData.walletAddress.substring(0, 6)}...${mockUserData.walletAddress.substring(38)}`;
+            
+            // Load available vouchers (mock data)
+            const vouchers = [
+                { id: 1, business: 'Coffee Shop', title: '50% Off Coffee', points: 200 },
+                { id: 2, business: 'Book Store', title: '$10 Discount', points: 150 },
+                { id: 3, business: 'Restaurant', title: 'Free Dessert', points: 100 },
+                { id: 4, business: 'Movie Theater', title: 'Free Popcorn', points: 75 }
+            ];
+            
+            const voucherListElement = document.getElementById('voucher-list');
+            voucherListElement.innerHTML = '';
+            
+            vouchers.forEach(voucher => {
+                const voucherElement = document.createElement('div');
+                voucherElement.className = 'voucher-item';
+                voucherElement.innerHTML = `
+                    <h3>${voucher.title}</h3>
+                    <p><strong>Business:</strong> ${voucher.business}</p>
+                    <p><strong>Cost:</strong> ${voucher.points} points</p>
+                    <button class="btn redeem-btn" data-id="${voucher.id}" 
+                            ${mockUserData.points < voucher.points ? 'disabled' : ''}>
+                        ${mockUserData.points < voucher.points ? 'Not Enough Points' : 'Redeem'}
+                    </button>
+                `;
+                voucherListElement.appendChild(voucherElement);
+            });
+            
+            // Add event listeners to redeem buttons
+            document.querySelectorAll('.redeem-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const voucherId = this.getAttribute('data-id');
+                    redeemVoucher(voucherId);
+                });
+            });
+            
+            // Time on site counter - earn points for time spent
+            let seconds = 0;
+            let sessionPoints = 0;
+            const timeCounterElement = document.getElementById('time-counter');
+            const sessionPointsElement = document.getElementById('session-points');
+            
+            setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                timeCounterElement.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                
+                // Every 5 minutes (300 seconds), earn 10 points
+                if (seconds % 300 === 0) {
+                    sessionPoints += 10;
+                    sessionPointsElement.textContent = sessionPoints;
+                    
+                    // Update total points
+                    const currentPoints = parseInt(document.getElementById('points-display').textContent);
+                    document.getElementById('points-display').textContent = `${currentPoints + 10} Points`;
+                    
+                    // In a real app, this would be an API call to update points in the backend
+                    console.log('Points earned for time spent on site');
+                }
+            }, 1000);
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            });
+            
+            // Function to redeem a voucher
+            function redeemVoucher(voucherId) {
+                // Find the voucher in our mock data
+                const voucher = vouchers.find(v => v.id == voucherId);
+                if (!voucher) return;
+                
+                // Check if user has enough points
+                const currentPoints = parseInt(document.getElementById('points-display').textContent);
+                if (currentPoints < voucher.points) {
+                    alert('Not enough points to redeem this voucher.');
+                    return;
+                }
+                
+                // In a real app, this would be an API call to the backend
+                // and a blockchain transaction
+                
+                // Mock successful redemption
+                const newPoints = currentPoints - voucher.points;
+                document.getElementById('points-display').textContent = `${newPoints} Points`;
+                
+                alert(`Successfully redeemed "${voucher.title}" for ${voucher.points} points!`);
+                
+                // Update redemption history
+                const historyElement = document.getElementById('redemption-history');
+                if (historyElement.querySelector('p').textContent === 'No redemptions yet.') {
+                    historyElement.innerHTML = '';
+                }
+                
+                const redemptionElement = document.createElement('div');
+                redemptionElement.innerHTML = `
+                    <p><strong>${voucher.title}</strong> - ${voucher.points} points - ${new Date().toLocaleString()}</p>
+                    <hr>
+                `;
+                historyElement.appendChild(redemptionElement);
+            }
+        });
+    </script>
+</body>
+</html>
