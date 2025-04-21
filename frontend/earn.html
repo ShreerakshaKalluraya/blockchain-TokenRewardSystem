@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Earn Points</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .panel { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    button { background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+    input { padding: 8px; margin: 5px 0; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h2>Business Portal</h2>
+    <input type="text" id="customerAddress" placeholder="Customer Wallet Address">
+    <input type="number" id="pointsAmount" placeholder="Points to award">
+    <button id="issuePoints">Issue Points</button>
+  </div>
+
+  <div class="panel">
+    <h2>Your QR Code</h2>
+    <div id="qrcode"></div>
+    <p>Show this to businesses to receive points</p>
+  </div>
+
+  <script src="js/web3.actions.js"></script>
+  <script src="js/earn.js"></script>
+</body>
+</html>
