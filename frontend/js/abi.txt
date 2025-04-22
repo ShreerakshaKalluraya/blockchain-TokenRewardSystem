@@ -1,4 +1,4 @@
-[
+const LOYALTY_TOKEN_ABI =[
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -820,4 +820,4 @@
 		"stateMutability": "view",
 		"type": "function"
 	}
-]
+] ;
