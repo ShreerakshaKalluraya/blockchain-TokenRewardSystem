@@ -26,6 +26,42 @@
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "_voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "claimPublicVoucher",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_description",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_supply",
+				"type": "uint256"
+			}
+		],
+		"name": "createPublicVoucher",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "_customer",
 				"type": "address"
@@ -53,6 +89,37 @@
 		"type": "function"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "voucherId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "PublicVoucherCreated",
+		"type": "event"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -77,6 +144,25 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "customer",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "VoucherClaimed",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -237,6 +323,79 @@
 				"internalType": "bool",
 				"name": "used",
 				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "issueDate",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getActivePublicVouchers",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "value",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "business",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalSupply",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "claimedCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct BusinessVoucher.PublicVoucher[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBusinessCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -271,6 +430,40 @@
 				"internalType": "bool",
 				"name": "used",
 				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "issueDate",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "hasClaimedVoucher",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -290,6 +483,74 @@
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "publicVouchers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalSupply",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimedCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "isActive",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "registeredBusinesses",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
