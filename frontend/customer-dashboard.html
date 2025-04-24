@@ -73,6 +73,27 @@
                     </div>
                 </div>
             </div>
+            <!-- Add this section below the "My Vouchers" card -->
+<div class="col-md-12 mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-gift me-2"></i>Available Public Vouchers</h5>
+            <button id="refresh-public-vouchers" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-sync-alt me-1"></i>Refresh
+            </button>
+        </div>
+        <div class="card-body">
+            <div id="public-vouchers-container" class="row">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading public vouchers...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
     

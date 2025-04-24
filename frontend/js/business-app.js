@@ -40,40 +40,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-// Check if the connected wallet is a registered business
-async function checkBusinessStatus(accountAddress) {
-    try {
-        if (!accountAddress) {
-            businessStatus.textContent = 'Connect wallet to verify business status';
-            return;
-        }
+    // Check if the connected wallet is a registered business
+    async function checkBusinessStatus(accountAddress) {
+        try {
+            if (!accountAddress) {
+                businessStatus.textContent = 'Connect wallet to verify business status';
+                return;
+            }
 
-        console.log("Checking status for account:", accountAddress);
-        
-        const result = await window.web3Actions.checkBusinessRegistration(accountAddress);
-        
-        if (result.isRegistered) {
-            businessStatus.classList.remove('alert-warning');
-            businessStatus.classList.add('alert-success');
-            businessStatus.textContent = `Registered Business: ${result.businessName}`;
+            console.log("Checking status for account:", accountAddress);
             
-            businessRegistrationSection.style.display = 'none';
-            voucherCreationSection.style.display = 'block';
+            const result = await window.web3Actions.checkBusinessRegistration(accountAddress);
             
-            loadBusinessVouchers();
-        } else {
-            businessStatus.classList.remove('alert-success');
-            businessStatus.classList.add('alert-warning');
-            businessStatus.textContent = 'Not a registered business. Please register below.';
-            
-            businessRegistrationSection.style.display = 'block';
-            voucherCreationSection.style.display = 'none';
+            if (result.isRegistered) {
+                businessStatus.classList.remove('alert-warning');
+                businessStatus.classList.add('alert-success');
+                businessStatus.textContent = `Registered Business: ${result.businessName}`;
+                
+                businessRegistrationSection.style.display = 'none';
+                voucherCreationSection.style.display = 'block';
+                
+                loadBusinessVouchers();
+            } else {
+                businessStatus.classList.remove('alert-success');
+                businessStatus.classList.add('alert-warning');
+                businessStatus.textContent = 'Not a registered business. Please register below.';
+                
+                businessRegistrationSection.style.display = 'block';
+                voucherCreationSection.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error checking business status:', error);
+            showNotification('Error checking business status: ' + error.message, 'danger');
         }
-    } catch (error) {
-        console.error('Error checking business status:', error);
-        showNotification('Error checking business status: ' + error.message, 'danger');
     }
-}
+
     // Register business form submission
     if (registerBusinessForm) {
         registerBusinessForm.addEventListener('submit', async (e) => {
@@ -106,26 +107,27 @@ async function checkBusinessStatus(accountAddress) {
         createVoucherForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const title = document.getElementById('voucher-title').value;
-            const description = document.getElementById('voucher-description').value;
-            const points = document.getElementById('voucher-points').value;
+            // Get form values with proper null checks
+            const description = document.getElementById('voucher-description')?.value;
+            const points = document.getElementById('voucher-points')?.value;
+            const supply = document.getElementById('voucher-supply')?.value;
+            
+            // Validate inputs
+            if (!description || !points || !supply) {
+                showNotification('Please fill all fields', 'danger');
+                return;
+            }
             
             try {
-                // In a real application, you would prompt for customer address
-                // For now, we'll use a placeholder or test address
-                const customerAddress = prompt("Enter customer address to issue voucher to:", "0x0000000000000000000000000000000000000000");
-                
-                if (!customerAddress) return;
-                
-                const result = await web3Actions.issueVoucher(customerAddress, description, points);
+                const result = await web3Actions.createPublicVoucher(
+                    description, 
+                    parseInt(points), 
+                    parseInt(supply)
+                );
                 
                 if (result.success) {
-                    showNotification('Voucher created successfully!', 'success');
-                    
-                    // Reset form
+                    showNotification(`Public voucher created! Supply: ${supply}`, 'success');
                     createVoucherForm.reset();
-                    
-                    // Reload vouchers
                     loadBusinessVouchers();
                 } else {
                     showNotification('Failed to create voucher: ' + result.error, 'danger');
@@ -139,9 +141,91 @@ async function checkBusinessStatus(accountAddress) {
 
     // Load business vouchers
     async function loadBusinessVouchers() {
-        // This would need to be implemented based on your contract's capabilities
-        // For now, just show a placeholder message
-        businessVouchers.innerHTML = '<p>Voucher listing functionality will be implemented based on contract events</p>';
+        try {
+            const account = web3Actions.getCurrentAccount();
+            if (!account) return;
+            
+            // Show loading state
+            businessVouchers.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading your issued vouchers...</p>
+                </div>
+            `;
+            
+            // Load both individual and public vouchers
+            const [issuedVouchers, publicVouchers] = await Promise.all([
+                web3Actions.getCustomerVouchers(account),
+                web3Actions.getActivePublicVouchers()
+            ]);
+            
+            // Filter public vouchers created by this business
+            const businessPublicVouchers = publicVouchers.filter(
+                v => v.business.toLowerCase() === account.toLowerCase()
+            );
+            
+            // Display all vouchers
+            businessVouchers.innerHTML = '';
+            
+            if (issuedVouchers.length === 0 && businessPublicVouchers.length === 0) {
+                businessVouchers.innerHTML = '<p>No vouchers found</p>';
+                return;
+            }
+            
+            // Display issued vouchers
+            if (issuedVouchers.length > 0) {
+                const issuedHeader = document.createElement('h5');
+                issuedHeader.textContent = 'Directly Issued Vouchers';
+                businessVouchers.appendChild(issuedHeader);
+                
+                issuedVouchers.forEach(voucher => {
+                    const voucherElement = document.createElement('div');
+                    voucherElement.className = 'card mb-3';
+                    voucherElement.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">Voucher #${voucher.id}</h5>
+                            <p class="card-text">${voucher.description}</p>
+                            <p class="card-text">Value: ${voucher.value} points</p>
+                            <p class="card-text">Status: ${voucher.used ? 'Used' : 'Active'}</p>
+                        </div>
+                    `;
+                    businessVouchers.appendChild(voucherElement);
+                });
+            }
+            
+            // Display public vouchers
+            if (businessPublicVouchers.length > 0) {
+                const publicHeader = document.createElement('h5');
+                publicHeader.className = 'mt-4';
+                publicHeader.textContent = 'Public Vouchers';
+                businessVouchers.appendChild(publicHeader);
+                
+                businessPublicVouchers.forEach(voucher => {
+                    const voucherElement = document.createElement('div');
+                    voucherElement.className = 'card mb-3';
+                    voucherElement.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">Public Voucher #${voucher.id}</h5>
+                            <p class="card-text">${voucher.description}</p>
+                            <p class="card-text">Value: ${voucher.value} points</p>
+                            <p class="card-text">Claimed: ${voucher.claimedCount}/${voucher.totalSupply}</p>
+                            <p class="card-text">Status: ${voucher.isActive ? 'Active' : 'Inactive'}</p>
+                        </div>
+                    `;
+                    businessVouchers.appendChild(voucherElement);
+                });
+            }
+            
+        } catch (error) {
+            console.error('Error loading vouchers:', error);
+            businessVouchers.innerHTML = `
+                <div class="alert alert-danger">
+                    Error loading vouchers: ${error.message}
+                </div>
+            `;
+        }
     }
 
     // Helper function to show notifications
@@ -158,7 +242,7 @@ async function checkBusinessStatus(accountAddress) {
     }
 
     // Check if MetaMask is installed on page load
-    if (!web3Actions.isMetaMaskInstalled()) {
+    if (!window.web3Actions?.isMetaMaskInstalled()) {
         walletStatus.textContent = 'MetaMask is not installed. Please install MetaMask to use this application.';
         connectWalletBtn.disabled = true;
     }

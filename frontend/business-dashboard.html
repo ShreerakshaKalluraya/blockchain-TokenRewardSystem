@@ -58,19 +58,20 @@
                 <div class="card-body">
                     <form id="create-voucher-form">
                         <div class="mb-3">
-                            <label class="form-label">Title</label>
-                            <input type="text" class="form-control" id="voucher-title" required>
+                          <label for="voucher-description" class="form-label">Description</label>
+                          <input type="text" class="form-control" id="voucher-description" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" id="voucher-description" required></textarea>
+                          <label for="voucher-points" class="form-label">Points Value</label>
+                          <input type="number" class="form-control" id="voucher-points" min="1" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Point Cost</label>
-                            <input type="number" class="form-control" id="voucher-points" min="1" required>
+                          <label for="voucher-supply" class="form-label">Total Supply</label>
+                          <input type="number" class="form-control" id="voucher-supply" min="1" value="100" required>
+
                         </div>
-                        <button type="submit" class="btn btn-success">Create Voucher</button>
-                    </form>
+                        <button type="submit" class="btn btn-primary">Create Public Voucher</button>
+                      </form>
                 </div>
             </div>
             

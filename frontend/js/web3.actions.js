@@ -29,6 +29,42 @@ const LOYALTY_TOKEN_ABI = [
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "_voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "claimPublicVoucher",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_description",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_supply",
+				"type": "uint256"
+			}
+		],
+		"name": "createPublicVoucher",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "_customer",
 				"type": "address"
@@ -56,6 +92,37 @@ const LOYALTY_TOKEN_ABI = [
 		"type": "function"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "voucherId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "PublicVoucherCreated",
+		"type": "event"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -80,6 +147,25 @@ const LOYALTY_TOKEN_ABI = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "customer",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "VoucherClaimed",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -240,6 +326,79 @@ const LOYALTY_TOKEN_ABI = [
 				"internalType": "bool",
 				"name": "used",
 				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "issueDate",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getActivePublicVouchers",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "value",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "business",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalSupply",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "claimedCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct BusinessVoucher.PublicVoucher[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBusinessCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -274,6 +433,40 @@ const LOYALTY_TOKEN_ABI = [
 				"internalType": "bool",
 				"name": "used",
 				"type": "bool"
+			},
+			{
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "issueDate",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "hasClaimedVoucher",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -297,12 +490,80 @@ const LOYALTY_TOKEN_ABI = [
 		],
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "publicVouchers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalSupply",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimedCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "isActive",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "registeredBusinesses",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	}
 ];
 
 
 // Replace with your deployed contract address
-const LOYALTY_TOKEN_ADDRESS = "0x5379a8df28a26cc2e3218eb44a3a2b1bce44f130"; 
+const LOYALTY_TOKEN_ADDRESS = "0xf4a43f129404eadf2e12b95084ad1c690c0e18f8"; 
 
 // Network names mapping
 const NETWORK_NAMES = {
@@ -650,8 +911,106 @@ async function redeemVoucher(voucherId) {
         };
     }
 }
+// Add to web3.actions.js
+// Add this function to handle public voucher creation
+async function createPublicVoucher(description, value, supply) {
+    if (!web3State.isInitialized) await initWeb3();
+    try {
+        const tx = await web3State.contract.methods
+            .createPublicVoucher(description, value, supply)
+            .send({ from: web3State.userAccount });
+        
+        return {
+            success: true,
+            transactionHash: tx.transactionHash,
+            voucherId: tx.events.PublicVoucherCreated.returnValues.voucherId
+        };
+    } catch (error) {
+        console.error("Error creating public voucher:", error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
 
+// Update getActivePublicVouchers to parse the response properly
+async function getActivePublicVouchers() {
+    if (!web3State.isInitialized) await initWeb3();
+    try {
+        const vouchers = await web3State.contract.methods.getActivePublicVouchers().call();
+        return vouchers.map(v => ({
+            id: v.id,
+            description: v.description,
+            value: v.value,
+            business: v.business,
+            totalSupply: v.totalSupply,
+            claimedCount: v.claimedCount,
+            isActive: v.isActive
+        }));
+    } catch (error) {
+        console.error("Error fetching public vouchers:", error);
+        return [];
+    }
+}
 
+// Update claimPublicVoucher to handle the response
+async function claimPublicVoucher(voucherId) {
+    try {
+        if (!web3State.isInitialized) {
+            await initWeb3();
+        }
+
+        if (!web3State.userAccount) {
+            return { success: false, error: "Wallet not connected" };
+        }
+
+        if (!web3State.contract?.methods?.claimPublicVoucher) {
+            return { success: false, error: "Contract method not available" };
+        }
+
+        // Add debug logs
+        console.log("Account:", web3State.userAccount);
+        console.log("Contract:", web3State.contract);
+        console.log("Voucher ID:", voucherId);
+
+        const tx = await web3State.contract.methods
+            .claimPublicVoucher(voucherId)
+            .send({ 
+                from: web3State.userAccount,
+                gas: 500000,  // Increased gas limit
+                gasPrice: await web3State.web3Instance.eth.getGasPrice() // Explicit gas price
+            });
+
+        return { 
+            success: true, 
+            transactionHash: tx.transactionHash 
+        };
+    } catch (error) {
+        console.error("Full error in claimPublicVoucher:", error);
+        
+        let errorMessage = "Transaction failed. Please check your wallet and try again.";
+        
+        // Handle specific error cases
+        if (error.code === 4001) {
+            errorMessage = "Transaction rejected by user";
+        } else if (error.message.includes("insufficient funds")) {
+            errorMessage = "Insufficient funds for gas";
+        } else if (error.message.includes("revert")) {
+            // Try to extract revert reason
+            const revertMatch = error.message.match(/reverted with reason string '(.+?)'/);
+            errorMessage = revertMatch ? revertMatch[1] : "Transaction reverted";
+        } else if (error.code === -32603) {
+            errorMessage = "Blockchain node error. Please try again later.";
+        }
+
+        return { 
+            success: false, 
+            error: errorMessage,
+            details: error.message
+        };
+    }
+}
 // Make functions available globally
 window.web3Actions = {
     isMetaMaskInstalled,
@@ -664,5 +1023,8 @@ window.web3Actions = {
     checkBusinessRegistration	,
 	getCustomerVouchers,  // Add this
     getVoucherDetails,    // Add this
-    redeemVoucher 
+    redeemVoucher ,
+	getActivePublicVouchers,
+	claimPublicVoucher,
+	createPublicVoucher
 };
