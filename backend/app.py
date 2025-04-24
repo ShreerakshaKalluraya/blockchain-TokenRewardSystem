@@ -1,67 +1,74 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from web3 import Web3
-import json
-import os
+from flask_mysqldb import MySQL
+import bcrypt
 
 app = Flask(__name__)
 CORS(app)
 
-# Connect to LOCAL Ganache testnet (change to your port if different)
-web3 = Web3(Web3.HTTPProvider('http://localhost:8545')) 
+# ✅ MySQL Config (Using flask-mysqldb)
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Raksha@2004'  # Your MySQL password
+app.config['MYSQL_DB'] = 'auth_db'
 
-# Load contract ABI
-with open('./abi/LoyaltyTokenABI.json') as f:
-    abi = json.load(f)
+mysql = MySQL(app)
 
-# Contract address (must be checksummed for local testnet)
-contract_address = Web3.to_checksum_address('0x203a9760709b8781a380f60035bbf3b57d3a36a7')
-contract = web3.eth.contract(address=contract_address, abi=abi)
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data['username']
+    password = data['password'].encode('utf-8')
+    email = data['email']
+    wallet = data['wallet']
+    user_type = data['userType']  # 'customer' or 'not_customer'
 
-# Set default account (use one of your Ganache accounts)
-web3.eth.defaultAccount = web3.eth.accounts[0] 
+    hashed = bcrypt.hashpw(password, bcrypt.gensalt())
 
-@app.route('/mint', methods=['POST'])
-def mint_tokens():
+    cur = mysql.connection.cursor()
     try:
-        data = request.json
-        recipient = Web3.to_checksum_address(data['address'])
-        amount = int(data['amount'])
-        
-        # Build and send transaction
-        tx_hash = contract.functions.mint(recipient, amount).transact({
-            'from': web3.eth.defaultAccount,
-            'gas': 200000  # Set appropriate gas limit
-        })
-        
-        # Get transaction receipt
-        tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-        
-        return jsonify({
-            "status": "success",
-            "tx_hash": tx_hash.hex(),
-            "block_number": tx_receipt['blockNumber']
-        })
-    
+        cur.execute(
+            "INSERT INTO users (username, password, email, wallet_address, user_type) VALUES (%s, %s, %s, %s, %s)",
+            (username, hashed, email, wallet, user_type)
+        )
+        mysql.connection.commit()
+        return jsonify({'message': 'User registered successfully!'})
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({'error': str(e)})
+    finally:
+        cur.close()
 
-@app.route('/balance/<address>', methods=['GET'])
-def get_balance(address):
-    try:
-        address = Web3.to_checksum_address(address)
-        balance = contract.functions.balanceOf(address).call()
-        return jsonify({"balance": str(balance)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
 
-@app.route('/total_supply', methods=['GET'])
-def total_supply():
-    try:
-        supply = contract.functions.totalSupply().call()
-        return jsonify({"total_supply": str(supply)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data['username']
+    password = data['password'].encode('utf-8')
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT password, user_type FROM users WHERE username = %s", (username,))
+    result = cur.fetchone()
+    cur.close()
+
+    print("DB result:", result)  # Debug print
+
+    if result:
+        stored_hashed = result[0]
+        user_type = result[1].lower()  # Convert to lowercase for consistency
+
+        # Ensure stored_hashed is bytes
+        if isinstance(stored_hashed, str):
+            stored_hashed = stored_hashed.encode('utf-8')
+
+        if bcrypt.checkpw(password, stored_hashed):
+            print(f"✅ Login successful for {user_type}")
+            return jsonify({
+                'message': 'Login successful',
+                'user_type': user_type
+            })
+
+    # If credentials are incorrect or user not found
+    return jsonify({'error': 'Invalid credentials'}), 401
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True,port=3000)
