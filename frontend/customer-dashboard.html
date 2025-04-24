@@ -7,7 +7,7 @@
     <!-- Essential Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
     <script src="/js/web3.actions.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/customer-app.js"></script>
     <!-- Bootstrap only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -34,12 +34,8 @@
             <div class="col-md-4">
                 <div class="card mb-3">
                     <div class="card-body text-center">
-                        <h5>Your Rewards Balance</h5>
-                        <h2><span id="token-balance">0</span> points</h2>
-                        <div class="mt-2">
-                            <i class="fas fa-clock me-1"></i>
-                            Session Time: <span id="session-time">00:00</span>
-                        </div>
+                        <h5>Your Vouchers</h5>
+                        <h2><span id="voucher-count">0</span> available</h2>
                     </div>
                 </div>
                 
@@ -59,17 +55,19 @@
             <!-- Available Vouchers -->
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Available Rewards</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>My Vouchers</h5>
+                        <button id="refresh-vouchers" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
                     </div>
                     <div class="card-body">
                         <div id="voucher-list" class="row">
-                            <!-- Vouchers will be loaded here -->
                             <div class="col-12 text-center">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
-                                <p class="mt-2">Loading available rewards...</p>
+                                <p class="mt-2">Connect your wallet to view vouchers</p>
                             </div>
                         </div>
                     </div>
@@ -78,236 +76,247 @@
         </div>
     </div>
     
-    <!-- Template for voucher items -->
-    <template id="voucher-template">
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="voucher-title">Voucher Title</h5>
-                    <p class="voucher-description text-muted">Voucher description goes here</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary">
-                            <i class="fas fa-coins me-1"></i>
-                            <span class="voucher-cost">100</span> points
-                        </span>
-                        <button class="btn btn-primary redeem-voucher-btn">
-                            <i class="fas fa-exchange-alt me-1"></i>Redeem
-                        </button>
-                    </div>
+    <!-- Voucher Details Modal -->
+    <div class="modal fade" id="voucherDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Voucher Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Description:</strong> <span id="voucher-desc"></span></p>
+                    <p><strong>Value:</strong> <span id="voucher-value"></span> points</p>
+                    <p><strong>Status:</strong> <span id="voucher-status"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="redeem-voucher-btn" type="button" class="btn btn-primary">Redeem Voucher</button>
                 </div>
             </div>
         </div>
-    </template>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        // Initialize Bootstrap modal
+        const voucherModal = new bootstrap.Modal(document.getElementById('voucherDetailsModal'));
+        let currentVoucherId = null;
+        
         // Core elements for the UI
         const elements = {
             walletStatus: document.getElementById('wallet-status'),
             accountAddress: document.getElementById('account-address'),
             connectWalletBtn: document.getElementById('connect-wallet'),
-            tokenBalance: document.getElementById('token-balance'),
-            sessionTime: document.getElementById('session-time'),
+            voucherCount: document.getElementById('voucher-count'),
             voucherList: document.getElementById('voucher-list'),
-            redemptionHistory: document.getElementById('redemption-history')
-        };
-        
-        // Initialize with demo balance (1000 coins)
-        let userBalance = 1000;
-        
-        // Simulated blockchain state
-        const blockchainState = {
-            walletConnected: false,
-            account: null,
-            error: null
+            redemptionHistory: document.getElementById('redemption-history'),
+            refreshVouchersBtn: document.getElementById('refresh-vouchers'),
+            voucherDesc: document.getElementById('voucher-desc'),
+            voucherValue: document.getElementById('voucher-value'),
+            voucherStatus: document.getElementById('voucher-status'),
+            redeemVoucherBtn: document.getElementById('redeem-voucher-btn')
         };
         
         // Connect wallet function
         async function connectWallet() {
             try {
-                // This would be replaced with actual Web3 connection code
-                if (window.ethereum) {
-                    const web3 = new Web3(window.ethereum);
-                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    blockchainState.walletConnected = true;
-                    blockchainState.account = accounts[0];
-                    blockchainState.error = null;
-                    
-                    // Update UI after connecting
-                    updateUI(blockchainState);
-                    
-                    // After wallet connection, load vouchers
-                    loadVouchers();
-                    
-                    // Initialize session timer
-                    startSessionTimer();
-                    
-                    return true;
-                } else {
-                    blockchainState.error = "Web3 provider not found";
-                    updateUI(blockchainState);
-                    return false;
+                const result = await window.web3Actions.initWeb3();
+                const account = window.web3Actions.getCurrentAccount();
+                
+                if (!account) {
+                    throw new Error("No account connected");
                 }
-            } catch (error) {
-                console.error("Error connecting wallet:", error);
-                blockchainState.error = "Connection failed";
-                updateUI(blockchainState);
-                return false;
-            }
-        }
-        
-        // Update UI based on blockchain state
-        function updateUI(state) {
-            if (state.walletConnected) {
+                
+                // Update UI
                 elements.walletStatus.innerHTML = '<i class="fas fa-check-circle me-1"></i>Connected';
                 elements.walletStatus.className = 'badge bg-success';
-                elements.accountAddress.textContent = `${state.account.substring(0, 6)}...${state.account.substring(38)}`;
+                elements.accountAddress.textContent = `${account.substring(0, 6)}...${account.substring(38)}`;
                 elements.connectWalletBtn.innerHTML = '<i class="fas fa-link me-1"></i>Connected';
                 elements.connectWalletBtn.disabled = true;
-                elements.tokenBalance.textContent = userBalance;
-            } else {
-                elements.walletStatus.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>' + (state.error || 'Not connected');
-                elements.walletStatus.className = 'badge bg-warning text-dark';
-                elements.connectWalletBtn.innerHTML = '<i class="fas fa-plug me-1"></i>Connect Wallet';
-                elements.connectWalletBtn.disabled = false;
+                
+                // Load vouchers
+                loadVouchers();
+                
+            } catch (error) {
+                console.error("Error connecting wallet:", error);
+                elements.walletStatus.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Connection failed';
+                elements.walletStatus.className = 'badge bg-danger';
+                showNotification('Wallet connection failed: ' + error.message, 'danger');
             }
-            
-            // Load redemption history
-            loadRedemptionHistory();
         }
         
-        // Load available vouchers
+        // Load customer vouchers
         async function loadVouchers() {
-            if (!elements.voucherList) return;
-            
             try {
+                const account = window.web3Actions.getCurrentAccount();
+                if (!account) return;
+                
                 elements.voucherList.innerHTML = `
                     <div class="col-12 text-center">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading available rewards...</p>
+                        <p class="mt-2">Loading your vouchers...</p>
                     </div>
                 `;
                 
-                // This would be replaced with actual blockchain call
-                // For now, use demo vouchers
-                const vouchers = [
-                    {
-                        id: 1, 
-                        title: "Coffee Shop - Free Coffee", 
-                        description: "Redeem for a free coffee at participating Coffee Shop locations",
-                        pointCost: 250,
-                        isActive: true
-                    },
-                    {
-                        id: 2, 
-                        title: "Book Store - 20% Discount", 
-                        description: "Get 20% off your purchase at Book Store",
-                        pointCost: 300,
-                        isActive: true
-                    },
-                    {
-                        id: 3, 
-                        title: "Tech Shop - $10 Voucher", 
-                        description: "Get $10 off your next purchase at Tech Shop",
-                        pointCost: 400,
-                        isActive: true
-                    },
-                    {
-                        id: 4, 
-                        title: "Premium Membership - 1 Month", 
-                        description: "Upgrade to premium membership for 1 month",
-                        pointCost: 1000,
-                        isActive: true
-                    }
-                ];
+                // Get vouchers from blockchain
+                const vouchers = await window.web3Actions.getCustomerVouchers(account);
                 
                 elements.voucherList.innerHTML = '';
+                elements.voucherCount.textContent = vouchers.length;
                 
-                const voucherTemplate = document.getElementById('voucher-template');
+                if (vouchers.length === 0) {
+                    elements.voucherList.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                            <p>No vouchers found</p>
+                            <p class="small text-muted">Vouchers issued to you will appear here</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
+                // Display vouchers
                 vouchers.forEach(voucher => {
-                    if (voucher.isActive) {
-                        const voucherClone = voucherTemplate.content.cloneNode(true);
-                        
-                        // Set voucher content
-                        voucherClone.querySelector('.voucher-title').textContent = voucher.title;
-                        voucherClone.querySelector('.voucher-description').textContent = voucher.description;
-                        voucherClone.querySelector('.voucher-cost').textContent = voucher.pointCost;
-                        
-                        // Set button data and event
-                        const redeemBtn = voucherClone.querySelector('.redeem-voucher-btn');
-                        redeemBtn.setAttribute('data-voucher-id', voucher.id);
-                        redeemBtn.setAttribute('data-voucher-cost', voucher.pointCost);
-                        redeemBtn.setAttribute('data-voucher-title', voucher.title);
-                        
-                        redeemBtn.addEventListener('click', function() {
-                            redeemVoucher(this.getAttribute('data-voucher-id'), 
-                                          parseInt(this.getAttribute('data-voucher-cost')),
-                                          this.getAttribute('data-voucher-title'));
+                    const voucherElement = document.createElement('div');
+                    voucherElement.className = 'col-md-6 mb-3';
+                    voucherElement.innerHTML = `
+                        <div class="card ${voucher.used ? 'border-secondary' : 'border-primary'}">
+                            <div class="card-body">
+                                <h5 class="card-title">Voucher #${voucher.id}</h5>
+                                <p class="card-text text-muted">${voucher.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge ${voucher.used ? 'bg-secondary' : 'bg-primary'}">
+                                        <i class="fas fa-coins me-1"></i>
+                                        ${voucher.value} points
+                                    </span>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary view-details-btn" 
+                                            data-id="${voucher.id}">
+                                            <i class="fas fa-info-circle me-1"></i>Details
+                                        </button>
+                                        ${!voucher.used ? `
+                                        <button class="btn btn-sm btn-primary redeem-btn ms-2" 
+                                            data-id="${voucher.id}">
+                                            <i class="fas fa-exchange-alt me-1"></i>Redeem
+                                        </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    elements.voucherList.appendChild(voucherElement);
+                    
+                    // Add event listeners
+                    if (!voucher.used) {
+                        voucherElement.querySelector('.redeem-btn').addEventListener('click', () => {
+                            redeemVoucher(voucher.id);
                         });
-                        
-                        elements.voucherList.appendChild(voucherClone);
                     }
+                    
+                    voucherElement.querySelector('.view-details-btn').addEventListener('click', () => {
+                        showVoucherDetails(voucher.id);
+                    });
                 });
                 
             } catch (error) {
                 console.error("Error loading vouchers:", error);
-                elements.voucherList.innerHTML = '<div class="col-12"><p class="text-center text-danger">Error loading vouchers. Please try again.</p></div>';
+                elements.voucherList.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                        <p>Error loading vouchers</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadVouchers()">
+                            <i class="fas fa-sync-alt me-1"></i>Try Again
+                        </button>
+                    </div>
+                `;
+                showNotification('Error loading vouchers: ' + error.message, 'danger');
             }
         }
         
-        // Redeem voucher function
-        async function redeemVoucher(voucherId, pointCost, voucherTitle) {
-            if (!blockchainState.walletConnected) {
-                showNotification('Please connect your wallet first', 'warning');
-                return;
-            }
-            
-            if (userBalance < pointCost) {
-                showNotification('Insufficient points for this voucher', 'danger');
-                return;
-            }
-            
+        // Show voucher details
+        async function showVoucherDetails(voucherId) {
             try {
-                // This would be replaced with actual blockchain transaction
-                // Here we simulate a successful transaction
+                const account = window.web3Actions.getCurrentAccount();
+                if (!account) return;
                 
-                // Update local balance
-                userBalance -= pointCost;
-                elements.tokenBalance.textContent = userBalance;
+                const details = await window.web3Actions.getVoucherDetails(account, voucherId);
                 
-                // Record redemption in history
-                const redemption = {
-                    id: voucherId,
-                    title: voucherTitle,
-                    pointCost: pointCost,
-                    date: new Date().toISOString(),
-                    txHash: '0x' + Math.random().toString(16).substr(2, 40) // Simulated transaction hash
-                };
+                if (!details) {
+                    throw new Error("Voucher not found");
+                }
                 
-                // Add to local storage for demonstration
-                const history = JSON.parse(localStorage.getItem('redemptionHistory') || '[]');
-                history.unshift(redemption);
-                localStorage.setItem('redemptionHistory', JSON.stringify(history));
+                // Update modal content
+                elements.voucherDesc.textContent = details.description;
+                elements.voucherValue.textContent = details.value;
+                elements.voucherStatus.textContent = details.used ? 'Used' : 'Active';
                 
-                // Reload redemption history
-                loadRedemptionHistory();
+                // Show/hide redeem button
+                elements.redeemVoucherBtn.style.display = details.used ? 'none' : 'block';
+                elements.redeemVoucherBtn.onclick = () => redeemVoucher(voucherId);
                 
-                showNotification('Voucher redeemed successfully!', 'success');
+                // Store current voucher ID
+                currentVoucherId = voucherId;
+                
+                // Show modal
+                voucherModal.show();
+                
+            } catch (error) {
+                console.error("Error showing voucher details:", error);
+                showNotification('Error showing voucher details: ' + error.message, 'danger');
+            }
+        }
+        
+        // Redeem voucher
+        async function redeemVoucher(voucherId) {
+            try {
+                const result = await window.web3Actions.redeemVoucher(voucherId);
+                
+                if (result.success) {
+                    showNotification('Voucher redeemed successfully!', 'success');
+                    
+                    // Close modal if open
+                    voucherModal.hide();
+                    
+                    // Reload vouchers after a delay
+                    setTimeout(loadVouchers, 2000);
+                    
+                    // Add to redemption history
+                    addToRedemptionHistory(voucherId);
+                } else {
+                    throw new Error(result.error || "Redemption failed");
+                }
             } catch (error) {
                 console.error("Error redeeming voucher:", error);
-                showNotification('Failed to redeem voucher. Please try again.', 'danger');
+                showNotification('Error redeeming voucher: ' + error.message, 'danger');
             }
         }
         
-        // Load redemption history
-        function loadRedemptionHistory() {
-            if (!elements.redemptionHistory) return;
+        // Add to redemption history (local storage for demo)
+        function addToRedemptionHistory(voucherId) {
+            const history = JSON.parse(localStorage.getItem('redemptionHistory') || '[]');
             
+            // Get voucher details to store in history
+            const voucherDetails = {
+                id: voucherId,
+                date: new Date().toISOString(),
+                txHash: '0x' + Math.random().toString(16).substr(2, 40) // Simulated tx hash
+            };
+            
+            history.unshift(voucherDetails);
+            localStorage.setItem('redemptionHistory', JSON.stringify(history));
+            
+            // Update UI
+            loadRedemptionHistory();
+        }
+        
+        // Load redemption history from local storage
+        function loadRedemptionHistory() {
             const history = JSON.parse(localStorage.getItem('redemptionHistory') || '[]');
             
             if (history.length === 0) {
@@ -322,11 +331,8 @@
                 redemptionElement.className = 'border-bottom pb-2 mb-2';
                 redemptionElement.innerHTML = `
                     <div>
-                        <h6 class="mb-1">${item.title}</h6>
+                        <h6 class="mb-1">Voucher #${item.id}</h6>
                         <div class="d-flex justify-content-between">
-                            <span class="badge bg-primary">
-                                <i class="fas fa-coins me-1"></i>${item.pointCost} points
-                            </span>
                             <small class="text-muted">${new Date(item.date).toLocaleDateString()}</small>
                         </div>
                         <small class="text-muted">TX: ${item.txHash.substring(0, 10)}...</small>
@@ -342,33 +348,15 @@
             notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
             notification.style.zIndex = '1050';
             notification.innerHTML = `
-                <i class="fas fa-info-circle me-2"></i>${message}
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
             document.body.appendChild(notification);
             
-            // Remove after 3 seconds
+            // Remove after 5 seconds
             setTimeout(() => {
                 notification.remove();
-            }, 3000);
-        }
-        
-        // Session timer
-        let sessionSeconds = 0;
-        function startSessionTimer() {
-            setInterval(() => {
-                sessionSeconds++;
-                const minutes = Math.floor(sessionSeconds / 60);
-                const seconds = sessionSeconds % 60;
-                elements.sessionTime.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                
-                // Every 5 minutes (300 seconds), award 10 points
-                if (sessionSeconds % 300 === 0 && sessionSeconds > 0) {
-                    userBalance += 10;
-                    elements.tokenBalance.textContent = userBalance;
-                    showNotification('You earned 10 points for staying active!');
-                }
-            }, 1000);
+            }, 5000);
         }
         
         // Initialize
@@ -378,8 +366,17 @@
                 elements.connectWalletBtn.addEventListener('click', connectWallet);
             }
             
-            // Update UI with initial state
-            updateUI(blockchainState);
+            if (elements.refreshVouchersBtn) {
+                elements.refreshVouchersBtn.addEventListener('click', loadVouchers);
+            }
+            
+            // Load redemption history
+            loadRedemptionHistory();
+            
+            // Check if wallet is already connected
+            if (window.ethereum && window.ethereum.selectedAddress) {
+                connectWallet();
+            }
         });
     </script>
 </body>

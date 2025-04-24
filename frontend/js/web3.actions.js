@@ -8,162 +8,10 @@ const LOYALTY_TOKEN_ABI = [
 		"type": "constructor"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "allowance",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "needed",
-				"type": "uint256"
-			}
-		],
-		"name": "ERC20InsufficientAllowance",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "balance",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "needed",
-				"type": "uint256"
-			}
-		],
-		"name": "ERC20InsufficientBalance",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "approver",
-				"type": "address"
-			}
-		],
-		"name": "ERC20InvalidApprover",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "receiver",
-				"type": "address"
-			}
-		],
-		"name": "ERC20InvalidReceiver",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
-			}
-		],
-		"name": "ERC20InvalidSender",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			}
-		],
-		"name": "ERC20InvalidSpender",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			}
-		],
-		"name": "OwnableInvalidOwner",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "OwnableUnauthorizedAccount",
-		"type": "error"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Approval",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "businessAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "BusinessApproved",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
 				"internalType": "address",
 				"name": "businessAddress",
 				"type": "address"
@@ -173,239 +21,146 @@ const LOYALTY_TOKEN_ABI = [
 				"internalType": "string",
 				"name": "name",
 				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "timestamp",
-				"type": "uint256"
 			}
 		],
 		"name": "BusinessRegistered",
 		"type": "event"
 	},
 	{
-		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
 				"internalType": "address",
-				"name": "previousOwner",
+				"name": "_customer",
 				"type": "address"
 			},
 			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "customerAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "points",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
 				"internalType": "string",
-				"name": "reason",
+				"name": "_description",
 				"type": "string"
 			},
 			{
-				"indexed": false,
 				"internalType": "uint256",
-				"name": "timestamp",
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "PointsEarned",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Transfer",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "voucherId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "businessAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "pointCost",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "VoucherCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "voucherId",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "customerAddress",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "pointsSpent",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "VoucherRedeemed",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "POINTS_DECIMAL_FACTOR",
+		"name": "issueVoucher",
 		"outputs": [
 			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "TIME_REWARD_MINUTES",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "TIME_REWARD_POINTS",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			}
-		],
-		"name": "allowance",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "approve",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
 			}
 		],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_businessName",
+				"type": "string"
+			}
+		],
+		"name": "registerBusiness",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "useVoucher",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "business",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "customer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "voucherId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "VoucherIssued",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "customer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "VoucherUsed",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "admin",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "businessNames",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -416,359 +171,31 @@ const LOYALTY_TOKEN_ABI = [
 				"type": "address"
 			}
 		],
-		"name": "approveBusiness",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "businesses",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "isRegistered",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "isApproved",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "registrationDate",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_title",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_description",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_pointCost",
-				"type": "uint256"
-			}
-		],
-		"name": "createVoucher",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "decimals",
-		"outputs": [
-			{
-				"internalType": "uint8",
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_customer",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_points",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_reason",
-				"type": "string"
-			}
-		],
-		"name": "issuePoints",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_customer",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_purchaseAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "issuePurchasePoints",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "lastActivityTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "mintAdditionalTokens",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "name",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_customer",
-				"type": "address"
-			}
-		],
-		"name": "recordActivity",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_voucherId",
-				"type": "uint256"
-			}
-		],
-		"name": "redeemVoucher",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			}
-		],
-		"name": "registerBusiness",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "symbol",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_voucherId",
-				"type": "uint256"
-			}
-		],
-		"name": "toggleVoucherStatus",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "totalSupply",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "transfer",
+		"name": "checkBusinessRegistration",
 		"outputs": [
 			{
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
 			},
 			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [
-			{
-				"internalType": "bool",
+				"internalType": "string",
 				"name": "",
-				"type": "bool"
+				"type": "string"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "newOwner",
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "voucherCounter",
+		"name": "customerVoucherCount",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -782,27 +209,22 @@ const LOYALTY_TOKEN_ABI = [
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
 		],
-		"name": "vouchers",
+		"name": "customerVouchers",
 		"outputs": [
 			{
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "businessAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "title",
-				"type": "string"
 			},
 			{
 				"internalType": "string",
@@ -811,22 +233,76 @@ const LOYALTY_TOKEN_ABI = [
 			},
 			{
 				"internalType": "uint256",
-				"name": "pointCost",
+				"name": "value",
 				"type": "uint256"
 			},
 			{
 				"internalType": "bool",
-				"name": "isActive",
+				"name": "used",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_customer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_voucherId",
+				"type": "uint256"
+			}
+		],
+		"name": "getVoucherDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "used",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "isRegisteredBusiness",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
 				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
 		"type": "function"
 	}
-] ;;
+];
+
 
 // Replace with your deployed contract address
-const LOYALTY_TOKEN_ADDRESS = "0x8117260c3fa8e2e9cc78a50275de9111fab78c63"; 
+const LOYALTY_TOKEN_ADDRESS = "0x5379a8df28a26cc2e3218eb44a3a2b1bce44f130"; 
 
 // Network names mapping
 const NETWORK_NAMES = {
@@ -862,7 +338,12 @@ async function initWeb3() {
         
         // Create Web3 instance
         web3State.web3Instance = new Web3(window.ethereum);
-        
+		if(web3State.web3Instance === null){
+			throw new Error("Failed to create Web3 instance");
+		}
+		else{
+			console.log("Web3 instance created successfully");
+		}
         // Get network ID
         web3State.networkId = await web3State.web3Instance.eth.net.getId();
         
@@ -891,7 +372,7 @@ async function initWeb3() {
         throw error;
     }
 }
-
+/*
 // Get token balance
 async function getTokenBalance() {
     if (!web3State.isInitialized) await initWeb3();
@@ -1000,26 +481,56 @@ async function toggleVoucherStatus(voucherId) {
     
     return tx.transactionHash;
 }
+	*/
+// Business functions
 // Business functions
 async function isBusinessRegistered(address) {
     if (!web3State.isInitialized) await initWeb3();
     try {
-        const business = await web3State.contract.methods.businesses(address).call();
-        return business.isRegistered;
+        if (!address || typeof address !== 'string' || !web3State.web3Instance.utils.isAddress(address)) {
+            console.error("Invalid address provided:", address);
+            return false;
+        }
+        
+        const result = await web3State.contract.methods.checkBusinessRegistration(address).call();
+        return result; // This should return a boolean directly
     } catch (error) {
         console.error("Error checking business registration:", error);
         return false;
     }
 }
 
-async function isBusinessApproved(address) {
+async function getBusinessName(address) {
     if (!web3State.isInitialized) await initWeb3();
     try {
-        const business = await web3State.contract.methods.businesses(address).call();
-        return business.isApproved;
+        if (!address || typeof address !== 'string' || !web3State.web3Instance.utils.isAddress(address)) {
+            console.error("Invalid address provided:", address);
+            return "";
+        }
+        
+        const businessName = await web3State.contract.methods.businessNames(address).call();
+        return businessName;
     } catch (error) {
-        console.error("Error checking business approval:", error);
-        return false;
+        console.error("Error getting business name:", error);
+        return "";
+    }
+}
+
+async function checkBusinessRegistration(address) {
+    if (!web3State.isInitialized) await initWeb3();
+    try {
+        const result = await web3State.contract.methods.checkBusinessRegistration(address).call();
+        // This returns [bool, string] according to your contract
+        return {
+            isRegistered: result[0],
+            businessName: result[1]
+        };
+    } catch (error) {
+        console.error("Error checking business registration:", error);
+        return {
+            isRegistered: false,
+            businessName: ""
+        };
     }
 }
 
@@ -1042,18 +553,18 @@ async function registerBusiness(businessName) {
     }
 }
 
-async function createVoucher(title, description, pointCost) {
+async function issueVoucher(customerAddress, description, value) {
     if (!web3State.isInitialized) await initWeb3();
     try {
-        // Convert points to wei (assuming 18 decimals)
-        const pointCostWei = web3State.web3Instance.utils.toWei(pointCost.toString(), 'ether');
-        
         const tx = await web3State.contract.methods
-            .createVoucher(title, description, pointCostWei)
+            .issueVoucher(customerAddress, description, value)
             .send({ from: web3State.userAccount });
         
-        // Get voucher ID from event logs
-        const voucherId = tx.events.VoucherCreated.returnValues.voucherId;
+        // Extract voucherId from the event if available
+        let voucherId = null;
+        if (tx.events && tx.events.VoucherIssued) {
+            voucherId = tx.events.VoucherIssued.returnValues.voucherId;
+        }
         
         return {
             success: true,
@@ -1061,75 +572,97 @@ async function createVoucher(title, description, pointCost) {
             transactionHash: tx.transactionHash
         };
     } catch (error) {
-        console.error("Error creating voucher:", error);
+        console.error("Error issuing voucher:", error);
         return {
             success: false,
             error: error.message
         };
     }
 }
-
-async function getBusinessVouchers(businessAddress) {
+function getCurrentAccount() {
+    return web3State.userAccount;
+}
+async function getCustomerVouchers(customerAddress) {
     if (!web3State.isInitialized) await initWeb3();
     try {
-        const voucherCount = await web3State.contract.methods.voucherCounter().call();
+        const voucherCount = await web3State.contract.methods
+            .customerVoucherCount(customerAddress)
+            .call();
+        
         const vouchers = [];
         
-        for (let i = 1; i <= voucherCount; i++) {
-            const voucher = await web3State.contract.methods.vouchers(i).call();
-            if (voucher.businessAddress === businessAddress) {
-                vouchers.push({
-                    id: voucher.id,
-                    title: voucher.title,
-                    description: voucher.description,
-                    pointCost: web3State.web3Instance.utils.fromWei(voucher.pointCost),
-                    isActive: voucher.isActive
-                });
-            }
+        for (let i = 0; i < voucherCount; i++) {
+            const voucher = await web3State.contract.methods
+                .customerVouchers(customerAddress, i)
+                .call();
+            
+            vouchers.push({
+                id: voucher.id,
+                description: voucher.description,
+                value: voucher.value,
+                used: voucher.used
+            });
         }
         
         return vouchers;
     } catch (error) {
-        console.error("Error getting business vouchers:", error);
-        throw error;
+        console.error("Error fetching customer vouchers:", error);
+        return [];
     }
 }
 
-async function toggleVoucherStatus(voucherId) {
+// Get details of a specific voucher
+async function getVoucherDetails(voucherId) {
+    if (!web3State.isInitialized) await initWeb3();
+    try {
+        const voucher = await web3State.contract.methods
+            .getVoucherDetails(web3State.userAccount, voucherId)
+            .call();
+        
+        return {
+            description: voucher.description,
+            value: voucher.value,
+            used: voucher.used
+        };
+    } catch (error) {
+        console.error("Error fetching voucher details:", error);
+        return null;
+    }
+}
+
+// Redeem a voucher
+async function redeemVoucher(voucherId) {
     if (!web3State.isInitialized) await initWeb3();
     try {
         const tx = await web3State.contract.methods
-            .toggleVoucherStatus(voucherId)
+            .useVoucher(voucherId)
             .send({ from: web3State.userAccount });
+        
         return {
             success: true,
             transactionHash: tx.transactionHash
         };
     } catch (error) {
-        console.error("Error toggling voucher status:", error);
+        console.error("Error redeeming voucher:", error);
         return {
             success: false,
             error: error.message
         };
     }
 }
+
+
 // Make functions available globally
 window.web3Actions = {
     isMetaMaskInstalled,
     initWeb3,
-    getTokenBalance,
-    redeemVoucher,
-    recordActivity,
-    getVoucherDetails,
-    getActiveVouchers,
-    getCurrentAccount,
-    createVoucher,
-    getBusinessVouchers,
-    toggleVoucherStatus,
     isBusinessRegistered,
-    isBusinessApproved,
+    issueVoucher,
+	getBusinessName,
+    getCurrentAccount,
     registerBusiness,
-    createVoucher,
-    getBusinessVouchers,
-    toggleVoucherStatus
+    checkBusinessRegistration	,
+	getCustomerVouchers,  // Add this
+    getVoucherDetails,    // Add this
+    redeemVoucher 
 };

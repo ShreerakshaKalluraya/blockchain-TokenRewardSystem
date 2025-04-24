@@ -9,7 +9,7 @@ CORS(app)
 # ✅ MySQL Config (Using flask-mysqldb)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Raksha@2004'  # Your MySQL password
+app.config['MYSQL_PASSWORD'] = 'Rashmi@123'  # Your MySQL password
 app.config['MYSQL_DB'] = 'auth_db'
 
 mysql = MySQL(app)

@@ -8,34 +8,62 @@ contract LoyaltyToken {
     uint public totalSupply;
 
     mapping(address => uint) public balanceOf;
-    mapping(address => bool) public minters; // New: authorized minters
+    mapping(address => bool) public minters;
+    mapping(address => string) public registeredBusinessNames; // Only store business names
+    mapping(address => bool) public isRegisteredBusiness; // Track if an address is a registered business
 
     address public admin;
 
+    // Event for business registration
+    event BusinessRegistered(address indexed businessAddress, string businessName);
+    
     constructor() {
         admin = msg.sender;
         minters[msg.sender] = true; // Admin is a minter by default
     }
 
-    // Add this modifier
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Only admin can call this");
+        _;
+    }
+
     modifier onlyMinter() {
         require(minters[msg.sender], "Only minters can call this");
         _;
     }
 
-    // Add this function
+    // Simple business registration function - just stores the business name
+    function registerBusiness(string memory businessName) public {
+        // Store the business name on the blockchain
+        registeredBusinessNames[msg.sender] = businessName;
+        isRegisteredBusiness[msg.sender] = true;
+        
+        // Make the business a minter automatically
+        minters[msg.sender] = true;
+        
+        emit BusinessRegistered(msg.sender, businessName);
+    }
+
+    // Check if a business is registered
+    function isBusinessRegistered(address businessAddress) public view returns (bool) {
+        return isRegisteredBusiness[businessAddress];
+    }
+
+    // Get business name
+    function getBusinessName(address businessAddress) public view returns (string memory) {
+        return registeredBusinessNames[businessAddress];
+    }
+
+    // Original functions
     function earnPoints(address recipient, uint amount) public onlyMinter {
         balanceOf[recipient] += amount;
         totalSupply += amount;
     }
 
-    // Add this function to manage minters
-    function setMinter(address account, bool isMinter) public {
-        require(msg.sender == admin, "Only admin");
+    function setMinter(address account, bool isMinter) public onlyAdmin {
         minters[account] = isMinter;
     }
 
-    // Keep existing functions...
     function mint(address to, uint amount) public onlyMinter {
         balanceOf[to] += amount;
         totalSupply += amount;
